@@ -43,7 +43,6 @@ final class OfflineManagerInterface {
         dispatchGroup.enter()
         let stylePackDownload = offlineManager.loadStylePack(for: style.mapStyleUrl, loadOptions: stylePackLoadOptions) { progress in
             DispatchQueue.main.async {
-                print("@@@ style progress \(Float(progress.completedResourceCount) / Float(progress.requiredResourceCount))")
                 channel.onStyleProgress(progress: progress.requiredResourceCount == 0 ? 0 :  Double(Float(progress.completedResourceCount) / Float(progress.requiredResourceCount)))
             }
             
@@ -85,8 +84,6 @@ final class OfflineManagerInterface {
                                                           loadOptions: tileRegionLoadOptions) { (progress) in
             
             DispatchQueue.main.async {
-                print("@@@ tile progress \(Float(progress.completedResourceCount) / Float(progress.requiredResourceCount))")
-                
                 channel.onTileProgress(progress: progress.requiredResourceCount == 0 ? 0 : Double(Float(progress.completedResourceCount) / Float(progress.requiredResourceCount)))
             }
             
@@ -117,11 +114,8 @@ final class OfflineManagerInterface {
                 channel.onSuccess()
             }
         }
-        
-        print("@@@ Created downloads group \([stylePackDownload, tileRegionDownload])")
         downloads = [stylePackDownload, tileRegionDownload]
         channels.append(channel)
-        
     }
     
     func getDownloadedRegionsIds(flutterResult: @escaping FlutterResult) {
