@@ -8,8 +8,8 @@ class OfflineRegionDefinition {
       required this.mapStyleUrl,
       required this.minZoom,
       required this.maxZoom,
-      this.includeIdeographs = false,
       required this.id,
+      this.radius,
       this.metadata});
 
   final List<LatLng> coordinates;
@@ -17,13 +17,13 @@ class OfflineRegionDefinition {
   final String mapStyleUrl;
   final double minZoom;
   final double maxZoom;
-  final bool includeIdeographs;
+  final double? radius;
   final String? metadata;
   final String id;
 
   @override
   String toString() =>
-      "$runtimeType,id =$id, bounds = $coordinates, mapStyleUrl = $mapStyleUrl, minZoom = $minZoom, maxZoom = $maxZoom, geometry = $geometry, metadata = $metadata";
+      "$runtimeType,id =$id, bounds = $coordinates, mapStyleUrl = $mapStyleUrl, minZoom = $minZoom, maxZoom = $maxZoom, geometry = $geometry, radius = $radius, metadata = $metadata";
 
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = Map<String, dynamic>();
@@ -31,7 +31,7 @@ class OfflineRegionDefinition {
     data['mapStyleUrl'] = mapStyleUrl;
     data['minZoom'] = minZoom;
     data['maxZoom'] = maxZoom;
-    data['includeIdeographs'] = includeIdeographs;
+    data['radius'] = radius;
     data['id'] = id;
     data['metadata'] = metadata;
     data['geometry'] = geometry.name;
@@ -44,7 +44,7 @@ class OfflineRegionDefinition {
         mapStyleUrl: map['mapStyleUrl'],
         minZoom: map['minZoom'].toDouble(),
         maxZoom: map['maxZoom'].toDouble(),
-        includeIdeographs: map['includeIdeographs'] ?? false,
+        radius: map['radius'].toDouble(),
         geometry: map['geometry'],
         id: map['id']);
   }
@@ -107,7 +107,6 @@ class MockData {
           mapStyleUrl: "mapbox://styles/mapbox/streets-v12",
           minZoom: 0,
           maxZoom: 16,
-          includeIdeographs: false,
           geometry: GeoJSONObjectType.polygon,
           id: DateTime.now().millisecondsSinceEpoch.toString());
 

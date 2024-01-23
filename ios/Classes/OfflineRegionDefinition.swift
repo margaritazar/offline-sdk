@@ -93,9 +93,6 @@ class Converters {
         switch(value){
         case "point": return .point(Point(LocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1])))
         case "lineString": return .lineString(LineString([LocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1]), LocationCoordinate2D(latitude: coordinates[1][0], longitude: coordinates[1][1])]))
-        case "multiPoint": return .multiPoint(MultiPoint(coordinates.map { (coord) -> LocationCoordinate2D in
-            return LocationCoordinate2D(latitude: coord[0], longitude: coord[1])
-        }))
         case "multiPolygon":
             return .multiPolygon(MultiPolygon(coordinates.map { (coord) -> Polygon in
                 return Polygon(center: CLLocationCoordinate2D(latitude: coord[0], longitude: coord[1]), radius: radius, vertices: 4)

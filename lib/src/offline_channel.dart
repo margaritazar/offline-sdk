@@ -2,18 +2,6 @@ part of mapbox_maps_flutter;
 
 final MethodChannel _offlineChannel = MethodChannel('plugins.flutter.io/mapbox_maps');
 
-Future<dynamic> setOffline(
-  bool offline, {
-  String? accessToken,
-}) =>
-    _offlineChannel.invokeMethod(
-      'setOffline',
-      <String, dynamic>{
-        'offline': offline,
-        'accessToken': accessToken,
-      },
-    );
-
 Future<dynamic> downloadOfflineRegion(OfflineRegionDefinition definition, OfflineStyleDefinition style,
     {Map<String, dynamic> metadata = const {}, required String accessToken, required String channelName}) async {
   final result = await _offlineChannel.invokeMethod('downloadOfflineRegion', <String, dynamic>{
@@ -45,7 +33,7 @@ Future<dynamic> deleteTilesByIds(
   });
 }
 
-Future<dynamic> deleteAllTilesAndStyles({String? id, required String accessToken}) {
+Future<dynamic> deleteAllTilesAndStyles({required String accessToken}) {
   return _offlineChannel.invokeMethod('deleteAllTilesAndStyles', <String, dynamic>{
     'accessToken': accessToken,
   });
