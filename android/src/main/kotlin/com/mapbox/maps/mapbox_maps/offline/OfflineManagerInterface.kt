@@ -206,7 +206,7 @@ object OfflineManagerInterface {
       offlineManager.getAllStylePacks {
         if (it.isError) {
           Log.v(TAG, it.error?.message ?: "error")
-          continuation.resumeWith(Result.success(true))
+          continuation.resumeWith(Result.success(false))
         } else {
           val list = it.value
           if (list != null) {
@@ -217,7 +217,7 @@ object OfflineManagerInterface {
               }
             }
           }
-          continuation.resumeWith(Result.success(false))
+          continuation.resumeWith(Result.success(true))
         }
       }
     }
@@ -228,7 +228,7 @@ object OfflineManagerInterface {
       tileStore.getAllTileRegions {
         if (it.isError) {
           Log.v(TAG, it.error?.message ?: "error")
-          continuation.resumeWith(Result.success(true))
+          continuation.resumeWith(Result.success(false))
         } else {
           val list = it.value
           if (list != null) {
@@ -240,7 +240,7 @@ object OfflineManagerInterface {
               tileStore.setOption(TileStoreOptions.DISK_QUOTA, Value.valueOf(0))
             }
           }
-          continuation.resumeWith(Result.success(false))
+          continuation.resumeWith(Result.success(true))
         }
       }
     }
