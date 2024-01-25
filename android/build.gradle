@@ -67,6 +67,7 @@ dependencies {
     implementation ("com.mapbox.maps:android:10.13.0") {
         exclude group: 'com.mapbox.plugin', module: 'maps-lifecycle'
     }
+    implementation ("com.mapbox.mapboxsdk:mapbox-sdk-turf:5.4.1")
 
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.3.0"

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:mapbox_maps_example/main.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 
 import 'page.dart';
@@ -22,6 +24,7 @@ class OfflinePageBody extends StatefulWidget {
 class OfflinePageBodyState extends State<OfflinePageBody> {
   OfflinePageBodyState();
 
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -40,12 +43,20 @@ class OfflinePageBodyState extends State<OfflinePageBody> {
     print("Get and Delete Button tapped");
     var ids = await getDownloadedRegionsIds();
     print("Get and Delete: Ids ${ids}");
-    deleteTilesByIds(ids ?? []);
+    if (ids is List) {
+      deleteTilesByIds(ids.map((e) => e.toString()).toList());
+    }
   }
 
-  void _onPressedDownload() {
+  void _onPressedDownload() async {
     print("Download Button tapped");
-    downloadOfflineRegion(MockData.mockRegionDefenition, MockData.mockStyleDefenition, channelName: 'testChannelName', accessToken: "pk.eyJ1IjoidGVycmFzdHJpZGUiLCJhIjoiYTk0MzdjODljY2RmOGNjZGVmZWI4Mzg2OTdhYWVlZDQifQ.14p620eMOVSeGtpzsSh8vA");
+    await downloadOfflineRegion(MockData.mockRegionDefenition, MockData.mockStyleDefenition, channelName: 'testChannelName', accessToken: MapsDemo.ACCESS_TOKEN);
+    EventChannel("testChannelName").receiveBroadcastStream().handleError((error) {
+      print("Offline Maps Download: Download Error $error");
+      return;
+    }).listen((data) {
+      print("Offline Maps Download: process $data");
+    });
   }
 
   void _onPressedCancel() {
@@ -55,11 +66,11 @@ class OfflinePageBodyState extends State<OfflinePageBody> {
 
   void _onPressedDeleteAll() {
     print("Delete All Button tapped");
-    deleteAllTilesAndStyles(accessToken: "pk.eyJ1IjoidGVycmFzdHJpZGUiLCJhIjoiYTk0MzdjODljY2RmOGNjZGVmZWI4Mzg2OTdhYWVlZDQifQ.14p620eMOVSeGtpzsSh8vA");
+    deleteAllTilesAndStyles(accessToken: MapsDemo.ACCESS_TOKEN);
   }
 
   void _onPressedResult() {
-    print("Rusult Button tapped");
-    getDownloadedRegionsIds();
+    print("Result Button tapped");
+    getDownloadedRegionsIds().then((result) => print("Result Button tapped: $result"));
   }
 }
