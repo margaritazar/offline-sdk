@@ -14,15 +14,11 @@ Future<dynamic> downloadOfflineRegion(OfflineRegionDefinition definition, Offlin
   return result;
 }
 
-Future<List<String>?> getDownloadedRegionsIds() async {
+Future<dynamic> getDownloadedRegionsIds() async {
   return _offlineChannel
       .invokeMethod(
     'getDownloadedRegionIds',
-  )
-      .then((value) {
-    var valueList = (value as List?)?.map((e) => e.toString()).toList();
-    return valueList;
-  });
+  );
 }
 
 Future<dynamic> deleteTilesByIds(
@@ -39,6 +35,6 @@ Future<dynamic> deleteAllTilesAndStyles({required String accessToken}) {
   });
 }
 
-Future<void> cancelDownload() {
+Future<dynamic> cancelDownload() {
   return _offlineChannel.invokeMethod('cancelDownloading');
 }

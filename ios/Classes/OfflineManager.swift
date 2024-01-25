@@ -38,7 +38,7 @@ final class OfflineManagerInterface {
         flutterResult(OfflineResult.success.rawValue)
         
         // 1. Create style package with loadStylePack() call.
-        let stylePackLoadOptions = StylePackLoadOptions(glyphsRasterizationMode: style.mode)!
+        let stylePackLoadOptions = StylePackLoadOptions(glyphsRasterizationMode: style.mode, metadata: style.metadata)!
         
         dispatchGroup.enter()
         let stylePackDownload = offlineManager.loadStylePack(for: style.mapStyleUrl, loadOptions: stylePackLoadOptions) { progress in
@@ -130,9 +130,6 @@ final class OfflineManagerInterface {
             case let .success(regions):
                 flutterResult(regions.map{(region) -> String in return region.id})
                 break
-            case let .failure(error) where error is StylePackError:
-                flutterResult(OfflineResult.failed.rawValue)
-                break
             case .failure:
                 flutterResult(OfflineResult.failed.rawValue)
                 break
@@ -141,9 +138,15 @@ final class OfflineManagerInterface {
         }
     }
     
-    func cancelDownloads() {
-        downloads.forEach { $0.cancel() }
-        channels.forEach {$0.onCancel(withArguments: nil)}
+    func cancelDownloads(flutterResult: FlutterResult) {
+        do {
+            downloads.forEach { $0.cancel() }
+            channels.forEach {$0.onCancel(withArguments: nil)}
+            flutterResult(OfflineResult.success.rawValue)
+        } catch _ {
+            flutterResult(OfflineResult.failed.rawValue)
+        }
+        
     }
     
     func deleteTilesPackByIds(ids: Array<String>, flutterResult: FlutterResult) {
@@ -171,6 +174,8 @@ final class OfflineManagerInterface {
             return
         }
         
+        var deleteError = false
+        
         dispatchGroup.enter()
         
         
@@ -184,12 +189,8 @@ final class OfflineManagerInterface {
                     }
                     dispatchGroup.leave()
                     
-                case let .failure(error) where error is StylePackError:
-                    flutterResult(OfflineResult.failed.rawValue)
-                    dispatchGroup.leave()
-                    break
                 case .failure:
-                    flutterResult(OfflineResult.failed.rawValue)
+                    deleteError = true;
                     dispatchGroup.leave()
                     break
                 }
@@ -209,12 +210,8 @@ final class OfflineManagerInterface {
                     tileStore.setOptionForKey(TileStoreOptions.diskQuota, value: 0)
                     dispatchGroup.leave()
                     
-                case let .failure(error) where error is TileRegionError:
-                    flutterResult(OfflineResult.failed.rawValue)
-                    dispatchGroup.leave()
-                    break
                 case .failure:
-                    flutterResult(OfflineResult.failed.rawValue)
+                    deleteError = true;
                     dispatchGroup.leave()
                     break
                 }
@@ -222,7 +219,11 @@ final class OfflineManagerInterface {
         }
         
         dispatchGroup.notify(queue: .main) {
-            flutterResult(OfflineResult.success.rawValue)
+            if (deleteError) {
+                flutterResult(OfflineResult.failed.rawValue)
+            }  else {
+                flutterResult(OfflineResult.success.rawValue)
+            }
         }
     }
 }

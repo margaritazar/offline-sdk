@@ -12,7 +12,7 @@ class OfflineRegionDefinition {
       this.radius,
       this.metadata});
 
-  final List<LatLng> coordinates;
+  final List<Position> coordinates;
   final GeoJSONObjectType geometry;
   final String mapStyleUrl;
   final double minZoom;
@@ -27,6 +27,7 @@ class OfflineRegionDefinition {
 
   Map<String, dynamic> toMap() {
     final Map<String, dynamic> data = Map<String, dynamic>();
+    // [Lng, Lat] order 
     data['coordinates'] = coordinates.map((e) => e.toJson()).toList();
     data['mapStyleUrl'] = mapStyleUrl;
     data['minZoom'] = minZoom;
@@ -36,21 +37,6 @@ class OfflineRegionDefinition {
     data['metadata'] = metadata;
     data['geometry'] = geometry.name;
     return data;
-  }
-
-  factory OfflineRegionDefinition.fromMap(Map<String, dynamic> map) {
-    return OfflineRegionDefinition(
-        coordinates: _latLngBoundsFromList(map['coordinates']),
-        mapStyleUrl: map['mapStyleUrl'],
-        minZoom: map['minZoom'].toDouble(),
-        maxZoom: map['maxZoom'].toDouble(),
-        radius: map['radius'].toDouble(),
-        geometry: map['geometry'],
-        id: map['id']);
-  }
-
-  static List<LatLng> _latLngBoundsFromList(List<dynamic> json) {
-    return [LatLng(json[0][0], json[0][1]), LatLng(json[1][0], json[1][1])];
   }
 }
 
@@ -71,10 +57,6 @@ class OfflineStyleDefinition {
     data['metadata'] = metadata;
     return data;
   }
-
-  factory OfflineStyleDefinition.fromMap(Map<String, dynamic> map) {
-    return OfflineStyleDefinition(mode: map['mode'], mapStyleUrl: map['mapStyleUrl'], metadata: map['metadata']);
-  }
 }
 
 /// Description of a downloaded region including its identifier.
@@ -87,13 +69,6 @@ class OfflineRegionModel {
   final OfflineRegionDefinition definition;
   final OfflineStyleDefinition style;
 
-  factory OfflineRegionModel.fromMap(Map<String, dynamic> json) {
-    return OfflineRegionModel(
-      definition: OfflineRegionDefinition.fromMap(json['definition']),
-      style: OfflineStyleDefinition.fromMap(json['style']),
-    );
-  }
-
   @override
   String toString() => "$runtimeType, definition = $definition, metadata = $style";
 }
@@ -101,8 +76,8 @@ class OfflineRegionModel {
 class MockData {
   static OfflineRegionDefinition get mockRegionDefenition => OfflineRegionDefinition(
           coordinates: [
-            LatLng(45.246905083937826, 19.81805587010649),
-            LatLng(45.25110678492973, 19.81745749402151),
+            Position(45.246905083937826, 19.81805587010649),
+            Position(45.25110678492973, 19.81745749402151),
           ],
           mapStyleUrl: "mapbox://styles/mapbox/streets-v12",
           minZoom: 0,

@@ -73,7 +73,7 @@ public class SwiftMapboxMapsPlugin: MapboxMapsPlugin {
                 
                 
             case OfflineMethods.cancelDownloading.rawValue:
-                OfflineManagerInterface.sharedInstance.cancelDownloads()
+                OfflineManagerInterface.sharedInstance.cancelDownloads(flutterResult: result)
                 
                 
             case OfflineMethods.deleteAllTilesAndStyles.rawValue:

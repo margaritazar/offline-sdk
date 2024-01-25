@@ -91,18 +91,18 @@ class Converters {
     
     static func geometryConverter(value: String, coordinates: Array<Array<Double>>, radius: Double) -> Geometry? {
         switch(value){
-        case "point": return .point(Point(LocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1])))
-        case "lineString": return .lineString(LineString([LocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1]), LocationCoordinate2D(latitude: coordinates[1][0], longitude: coordinates[1][1])]))
+        case "point": return .point(Point(LocationCoordinate2D(latitude: coordinates[0][1], longitude: coordinates[0][0])))
+        case "lineString": return .lineString(LineString([LocationCoordinate2D(latitude: coordinates[0][1], longitude: coordinates[0][0]), LocationCoordinate2D(latitude: coordinates[1][1], longitude: coordinates[1][0])]))
         case "multiPolygon":
             return .multiPolygon(MultiPolygon(coordinates.map { (coord) -> Polygon in
-                return Polygon(center: CLLocationCoordinate2D(latitude: coord[0], longitude: coord[1]), radius: radius, vertices: 4)
+                return Polygon(center: CLLocationCoordinate2D(latitude: coord[1], longitude: coord[0]), radius: radius, vertices: 4)
             }))
         case "polygon": do {
-            let center = Polygon(coordinates.map { (coord) -> [CLLocationCoordinate2D] in
-                return [CLLocationCoordinate2D(latitude: coord[0], longitude: coord[1])]
+            let center = Polygon([coordinates.map { (coord) -> CLLocationCoordinate2D in
+                return CLLocationCoordinate2D(latitude: coord[1], longitude: coord[0])
                 
-            }).center
-            return .polygon(Polygon(center: center ?? LocationCoordinate2D(latitude: coordinates[0][0], longitude: coordinates[0][1]), radius: radius, vertices: 4))
+            }]).center
+            return .polygon(Polygon(center: center ?? LocationCoordinate2D(latitude: coordinates[0][1], longitude: coordinates[0][0]), radius: radius, vertices: 4))
         }
             
         default: return nil
