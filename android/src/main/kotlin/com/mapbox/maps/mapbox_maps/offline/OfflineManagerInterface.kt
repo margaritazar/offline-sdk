@@ -1,7 +1,4 @@
-import android.os.Build
-import android.os.Looper
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.mapbox.bindgen.Expected
 import com.mapbox.bindgen.Value
 import com.mapbox.common.*
@@ -9,7 +6,6 @@ import com.mapbox.maps.*
 import com.mapbox.maps.mapbox_maps.offline.OfflineChannelHandler
 import com.mapbox.maps.mapbox_maps.offline.OfflineRegionDefinition
 import com.mapbox.maps.mapbox_maps.offline.OfflineStyleDefinition
-import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.*
 import kotlin.coroutines.suspendCoroutine
 
@@ -37,17 +33,17 @@ object OfflineManagerInterface {
     style: OfflineStyleDefinition,
     channel: OfflineChannelHandler,
     accessToken: String
-  ): String {
+  ): OfflineResult {
     if (offlineManager == null) {
       offlineManager = OfflineManager(ResourceOptions.Builder().accessToken(accessToken).build())
     }
 
-    val tileStore = tileStore ?: return OfflineResult.FAILED.key
-    val offlineManager = offlineManager ?: return OfflineResult.FAILED.key
+    val tileStore = tileStore ?: return OfflineResult.FAILED
+    val offlineManager = offlineManager ?: return OfflineResult.FAILED
 
     if (downloads.isNotEmpty()) {
       Log.v(TAG, "Downloading is in process")
-      return OfflineResult.FAILED.key
+      return OfflineResult.FAILED
     }
     channels.add(channel)
     scope.launch(Dispatchers.Default) {
@@ -66,7 +62,7 @@ object OfflineManagerInterface {
         }
       }
     }
-    return OfflineResult.SUCCESS.key
+    return OfflineResult.SUCCESS
   }
 
   private suspend fun awaitLoadStylePack(
@@ -153,38 +149,38 @@ object OfflineManagerInterface {
     }
   }
 
-  fun getDownloadedRegionsIds(result: MethodChannel.Result) {
+  fun getDownloadedRegionsIds(callback: (OfflineResult, List<String>?) -> Unit) {
     val tileStore = tileStore
     if (tileStore == null) {
-      result.success(OfflineResult.FAILED.key)
+      callback(OfflineResult.FAILED, null)
       return
     }
     tileStore.getAllTileRegions {
-      result.success(if (it.isError) OfflineResult.FAILED.key else it.value?.map { region -> region.id })
+      callback(if (it.isError) OfflineResult.FAILED else OfflineResult.SUCCESS, it.value?.map { region -> region.id })
     }
   }
 
-  fun cancelDownloads(): String {
+  fun cancelDownloads(): OfflineResult {
     return try {
       downloads.forEach { it.cancel() }
       channels.forEach { it.onCancel(null) }
-      OfflineResult.FAILED.key
+      OfflineResult.SUCCESS
     } catch (e: Exception) {
       Log.v(TAG, "Cancel download exception: ${e.message}")
-      OfflineResult.SUCCESS.key
+      OfflineResult.FAILED
     }
   }
 
-  fun deleteTilesPackByIds(ids: List<String>): String {
-    val tileStore = tileStore ?: return OfflineResult.FAILED.key
+  fun deleteTilesPackByIds(ids: List<String>): OfflineResult {
+    val tileStore = tileStore ?: return OfflineResult.FAILED
     for (id in ids) {
       tileStore.removeTileRegion(id)
     }
-    return OfflineResult.SUCCESS.key
+    return OfflineResult.SUCCESS
   }
 
   // Remove downloaded region and style pack
-  fun deleteAllTilesAndStyles(accessToken: String, result: MethodChannel.Result) {
+  fun deleteAllTilesAndStyles(accessToken: String, callback: (OfflineResult) -> Unit) {
     if (offlineManager == null) {
       offlineManager = OfflineManager(ResourceOptions.Builder().accessToken(accessToken).build())
     }
@@ -192,7 +188,7 @@ object OfflineManagerInterface {
     val tileStore = tileStore
     val offlineManager = offlineManager
     if (tileStore == null || offlineManager == null) {
-      result.success(OfflineResult.FAILED.key)
+      callback(OfflineResult.FAILED)
       return
     }
 
@@ -200,7 +196,7 @@ object OfflineManagerInterface {
       val styles = async { awaitStylesRemove(offlineManager) }
       val regions = async { awaitRegionsRemove(tileStore) }
       val isSuccessful = styles.await() && regions.await()
-      result.success(if (isSuccessful) OfflineResult.SUCCESS.key else OfflineResult.FAILED.key)
+      callback(if (isSuccessful) OfflineResult.SUCCESS else OfflineResult.FAILED)
     }
   }
 

@@ -92,23 +92,29 @@ class MapboxMapsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             return
           }
 
-          val channelHandler = OfflineChannelHandler(flutterPluginBinding.binaryMessenger, channelName)
-          val downloadResult = OfflineManagerInterface.downloadTileRegions(
+          OfflineManagerInterface.downloadTileRegions(
             region,
             regionStyle,
-            channelHandler,
+            OfflineChannelHandler(flutterPluginBinding.binaryMessenger, channelName),
             accessToken
-          )
-          result.success(downloadResult)
+          ).let {
+            result.success(it.key)
+          }
         }
         OfflineMethods.GET_DOWNLOADED_REGION_IDS.key ->
-          OfflineManagerInterface.getDownloadedRegionsIds(result)
+          OfflineManagerInterface.getDownloadedRegionsIds { it, list ->
+            result.success(if (it == OfflineResult.SUCCESS) list else it.key)
+          }
 
         OfflineMethods.DELETE_TILES_BY_ID.key ->
-          result.success(OfflineManagerInterface.deleteTilesPackByIds(call.argument<List<String>>(IDS_KEY) ?: emptyList()))
+          OfflineManagerInterface.deleteTilesPackByIds(call.argument<List<String>>(IDS_KEY) ?: emptyList()).let {
+            result.success(it.key)
+          }
 
         OfflineMethods.CANCEL_DOWNLOADING.key ->
-          result.success(OfflineManagerInterface.cancelDownloads())
+          OfflineManagerInterface.cancelDownloads().let {
+            result.success(it.key)
+          }
 
         OfflineMethods.DELETE_ALL_TILES_AND_STYLES.key -> {
           val accessToken = call.argument<String>(ACCESS_TOKEN_KEY)
@@ -116,7 +122,9 @@ class MapboxMapsPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             result.success(PluginErrors.FETCHING_MODELS_ERROR.key)
             return
           }
-          OfflineManagerInterface.deleteAllTilesAndStyles(accessToken, result)
+          OfflineManagerInterface.deleteAllTilesAndStyles(accessToken) {
+            result.success(it.key)
+          }
         }
         else -> result.notImplemented()
       }

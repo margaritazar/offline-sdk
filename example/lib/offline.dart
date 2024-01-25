@@ -24,7 +24,6 @@ class OfflinePageBody extends StatefulWidget {
 class OfflinePageBodyState extends State<OfflinePageBody> {
   OfflinePageBodyState();
 
-
   @override
   Widget build(BuildContext context) {
     return Center(
