@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:turf/helpers.dart';
 
 import 'src/proxy_binary_messenger.dart' show ProxyBinaryMessenger;
 
@@ -50,3 +51,5 @@ part 'src/style/source/raster_source.dart';
 part 'src/style/source/rasterdem_source.dart';
 part 'src/style/source/vector_source.dart';
 part 'src/style/style.dart';
+part 'src/offline_channel.dart';
+part 'src/offline_models.dart';
